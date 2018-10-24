@@ -1,6 +1,8 @@
 import core.Night;
 import core.NightRepository;
 import core.Selector;
+import static core.Cost.*;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -103,6 +105,71 @@ public class SelectorTests {
         .ifPresentOrElse(
                 (n)->fail("Found Night when should have returned none."),
                 ()->{}
+        );
+    }
+
+    @Test
+    void getComplexFilteredNights() throws IOException {
+        NightRepository.saveNights(Arrays.asList(
+                new Night(1, false, false, true, false, true, MED),
+                new Night(2, true, true, false, false, false, LOW),
+                new Night(3, false, true, false, false, false, FREE),
+                new Night(4, false, false, false, true, false, HIGH),
+                new Night(5, false, true, true, true, false, MED),
+                new Night(6, false, true, false, false, false, FREE),
+                new Night(7),
+                new Night(8, false, false, true, false, false, LOW),
+                new Night(9),
+                new Night(10)
+        ));
+
+        assertEquals(10, NightRepository.getNights().size());
+
+        Predicate<Night> open = n->!n.isComplete();
+        Predicate<Night> eCard = Night::hasECard;
+        Predicate<Night> food = Night::involvesFood;
+        Predicate<Night> props = Night::involvesProps;
+        Predicate<Night> travel = Night::involvesTravel;
+        Predicate<Night> free = n->n.getCost().equals(FREE);
+        Predicate<Night> expensive = n->n.getCost().getValue() > 1;
+
+        Selector.setRandomizer(i->1);
+
+        Selector.getRandomNight(Collections.singletonList(open))
+        .ifPresentOrElse(
+                (night -> assertEquals(3, (int)night.getId())),
+                () -> fail("Could not get Night.")
+        );
+
+        Selector.getRandomNight(Collections.singletonList(eCard))
+        .ifPresentOrElse(
+                (night -> assertEquals(3, (int)night.getId())),
+                () -> fail("Could not get Night.")
+        );
+
+        Selector.getRandomNight(Arrays.asList(free,travel))
+        .ifPresent(
+                (night -> fail("Should not have found Night."))
+        );
+
+        Selector.getRandomNight(Collections.singletonList(food))
+        .ifPresentOrElse(
+                (night -> assertEquals(5, (int)night.getId())),
+                () -> fail("Could not get Night.")
+        );
+
+        Selector.getRandomNight(Collections.singletonList(expensive))
+        .ifPresentOrElse(
+                (night -> assertEquals(4, (int)night.getId())),
+                () -> fail("Could not get Night.")
+        );
+
+        Selector.setRandomizer(new Random()::nextInt);
+
+        Selector.getRandomNight(Arrays.asList(eCard,food,props))
+        .ifPresentOrElse(
+                (night -> assertEquals(5,(int)night.getId())),
+                () -> fail("Could not get Night.")
         );
     }
 

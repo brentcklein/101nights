@@ -53,6 +53,7 @@ public class NightRepositoryTests {
         NightRepository.getNightById(2)
                 .ifPresent(
                         n -> {
+                            assertFalse(n.isComplete());
                             n.setComplete(true);
                             NightRepository.saveNight(n);
                         }
