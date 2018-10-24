@@ -25,4 +25,8 @@ public class NightRepository {
                 .filter(n->!n.isComplete())
                 .collect(Collectors.toList());
     }
+
+    public static void saveNight(Night night) {
+        DataAdapter.saveNight(night);
+    }
 }

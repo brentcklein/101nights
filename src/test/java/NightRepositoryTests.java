@@ -42,6 +42,30 @@ public class NightRepositoryTests {
     }
 
     @Test
+    void updateNight() throws IOException {
+        NightRepository.saveNights(Arrays.asList(
+                new Night(1),
+                new Night(2),
+                new Night(3),
+                new Night(4)
+        ));
+
+        NightRepository.getNightById(2)
+                .ifPresent(
+                        n -> {
+                            n.setComplete(true);
+                            NightRepository.saveNight(n);
+                        }
+                );
+
+        NightRepository.getNightById(2)
+                .ifPresentOrElse(
+                        n->assertTrue(n.isComplete()),
+                        ()->fail("Could not get Night.")
+                );
+    }
+
+    @Test
     void getOpenNights() throws IOException {
         NightRepository.saveNights(Arrays.asList(
                 new Night(1),

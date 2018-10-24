@@ -29,9 +29,7 @@ public class DataAdapter {
                 .getNights()
                 .values()
                 .stream()
-                .filter(n -> {
-                    return n.getId().equals(id);
-                })
+                .filter(n -> n.getId().equals(id))
                 .findFirst();
     }
 

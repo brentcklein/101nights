@@ -59,7 +59,7 @@ public class DataAdapterTests {
     }
 
     @Test
-    void updateNight() {
+    void updateNight() throws IOException {
         DataAdapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
