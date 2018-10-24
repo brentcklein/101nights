@@ -1,10 +1,13 @@
 import core.DataAdapter;
 import core.Night;
+import core.NightRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class DataAdapterTests {
     /**
@@ -12,6 +15,8 @@ public class DataAdapterTests {
      **/
     @Test
     void createNights() throws IOException {
+        DataAdapter.saveNights(Collections.emptyList());
+
         DataAdapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
@@ -76,5 +81,10 @@ public class DataAdapterTests {
                         n->assertTrue(n.isComplete()),
                         ()->fail("Could not get Night.")
                 );
+    }
+
+    @AfterEach
+    private void clearNights() {
+        NightRepository.saveNights(Collections.emptyList());
     }
 }

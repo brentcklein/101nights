@@ -1,9 +1,14 @@
 package core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DataSource {
     private Map<Integer,Night> nights;
+
+    public DataSource() {
+        this.nights = new HashMap<>();
+    }
 
     public Map<Integer,Night> getNights() {
         return nights;

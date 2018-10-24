@@ -1,5 +1,6 @@
 package core;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
@@ -13,7 +14,7 @@ public class Selector {
         Selector.randomizer = randomizer;
     }
 
-    public static Night getRandomNight(List<Predicate<Night>> predicates) throws IOException {
+    public static Optional<Night> getRandomNight(List<Predicate<Night>> predicates) throws IOException {
 //        This approach works because the working set is always limited. What would the
 //        approach be if the set could be arbitrarily large?
         List<Night> filteredList = NightRepository.getNights();
@@ -26,10 +27,15 @@ public class Selector {
             )
             .collect(Collectors.toList());
 
-        return filteredList.get(randomizer.apply(filteredList.size()));
+        if (filteredList.size() > 0) {
+            return Optional.of(filteredList.get(randomizer.apply(filteredList.size())));
+        } else {
+            return Optional.empty();
+        }
+
     }
 
-    public static Night getRandomNight() throws IOException {
+    public static Optional<Night> getRandomNight() throws IOException {
         return getRandomNight(Collections.singletonList((night -> true)));
     }
 }

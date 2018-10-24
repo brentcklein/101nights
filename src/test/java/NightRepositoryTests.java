@@ -1,10 +1,12 @@
 import core.Night;
 import core.NightRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class NightRepositoryTests {
@@ -55,5 +57,10 @@ public class NightRepositoryTests {
         assertTrue(nights.stream().allMatch(
                 night -> Arrays.asList(1,4).contains(night.getId())
         ));
+    }
+
+    @AfterEach
+    private void clearNights() {
+        NightRepository.saveNights(Collections.emptyList());
     }
 }
