@@ -1,9 +1,10 @@
 import core.Night;
+import core.NightRepository;
 import core.Selector;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,59 +15,58 @@ public class SelectorTests {
      * It should return a random Night object from a predetermined list.
      */
     @Test
-    void getRandomNight() {
+    void getRandomNight() throws IOException {
 
 //        Make test nights
-        List<Night> nights = new ArrayList<>();
-        nights.add(new Night(1));
-        nights.add(new Night(2));
-        nights.add(new Night(3));
+        NightRepository.saveNights(Arrays.asList(
+            new Night(1),
+            new Night(2),
+            new Night(3)
+        ));
 
-//        Instantiate selector with test nights
-        Selector selector = new Selector(nights);
+        assertEquals(3,NightRepository.getNights().size());
+
+        Selector.setRandomizer(integer -> 1);
 
 //        get random night
-        Night randomNight = selector.getRandomNight();
-        System.out.println("[TEST] Random night id: " + randomNight.getId());
+        Night randomNight = Selector.getRandomNight();
 
-//        confirm night is one of the ones we defined above
-        assertEquals(
-                randomNight,
-                nights
-                        .stream()
-                        .filter((n) -> n.getId().equals(randomNight.getId()))
-                        .findFirst()
-                        .get());
+//        confirm night is the second one we defined above (position 1 in 0-indexed list)
+        assertEquals(2,(int)randomNight.getId());
     }
 
     /**
     * It should return a random Night object from a filtered list
     */
     @Test
-    void getFilteredNight() {
-        //        Make test nights
-        List<Night> nights = new ArrayList<>();
-        nights.add(new Night(1));
-        nights.add(new Night(2));
-        nights.add(new Night(3));
-        nights.add(new Night(4));
-        nights.add(new Night(5));
+    void getFilteredNight() throws IOException {
+        NightRepository.saveNights(Arrays.asList(
+                new Night(1),
+                new Night(2),
+                new Night(3),
+                new Night(4),
+                new Night(5)
+        ));
 
-//        Instantiate selector with test nights
-        Selector selector = new Selector(nights);
+        assertEquals(5,NightRepository.getNights().size());
 
-        assertEquals(5,nights.size());
+        Selector.setRandomizer(i->0);
 
 //        filter out all odd ids and all ids <= 2 (should leave only id == 4)
         List<Predicate<Night>> predicates = new ArrayList<>();
-        predicates.add(night -> night.getId() % 2 == 0);
-        predicates.add(night -> night.getId() > 2);
+        predicates.add(night->night.getId() % 2 == 0);
+        Night randomNight = Selector.getRandomNight(predicates);
+        assertEquals(2, (int)randomNight.getId());
 
-//        get random night using filters
-        Night randomNight = selector.getRandomNight(predicates);
-        System.out.println("[TEST] Random night id: " + randomNight.getId());
+//        Test empty list of predicates as indicating a lack of filters
+        randomNight = Selector.getRandomNight(Collections.emptyList());
+        assertEquals(1,(int)randomNight.getId());
 
-//        confirm night has id of 4
+        Selector.setRandomizer(new Random()::nextInt);
+
+//        Test multiple predicates. Only remaining id should be 4.
+        predicates.add(night->night.getId() > 2);
+        randomNight = Selector.getRandomNight(predicates);
         assertEquals(4, (int)randomNight.getId());
     }
 
