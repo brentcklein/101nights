@@ -1,6 +1,7 @@
 package core;
 
 import static core.Cost.*;
+import static core.Partner.*;
 
 public class Night {
     private Integer id;
@@ -10,8 +11,9 @@ public class Night {
     private boolean involvesProps;
     private boolean involvesTravel;
     private Cost cost;
+    private Partner partner;
 
-    public Night(Integer id, boolean complete, boolean hasECard, boolean involvesFood, boolean involvesProps, boolean involvesTravel, Cost cost) {
+    public Night(Integer id, boolean complete, boolean hasECard, boolean involvesFood, boolean involvesProps, boolean involvesTravel, Cost cost, Partner partner) {
         this.id = id;
         this.complete = complete;
         this.hasECard = hasECard;
@@ -19,10 +21,11 @@ public class Night {
         this.involvesProps = involvesProps;
         this.involvesTravel = involvesTravel;
         this.cost = cost;
+        this.partner = partner;
     }
 
     public Night(Integer id, boolean complete) {
-        this(id,complete,false,false,false,false, FREE);
+        this(id,complete,false,false,false,false, FREE, BOTH);
     }
 
     public Night(Integer id) {
@@ -79,5 +82,13 @@ public class Night {
 
     public void setCost(Cost cost) {
         this.cost = cost;
+    }
+
+    public Partner getPartner() {
+        return partner;
+    }
+
+    public void setPartner(Partner partner) {
+        this.partner = partner;
     }
 }
