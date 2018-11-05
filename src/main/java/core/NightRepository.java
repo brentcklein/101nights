@@ -7,26 +7,32 @@ import java.util.stream.Collectors;
 
 public class NightRepository {
 
+    private static DataAdapter adapter = new DataAdapter();
+
     public static List<Night> getNights() throws IOException {
-        return DataAdapter.getNights();
+        return adapter.getNights();
     }
 
     public static void saveNights(List<Night> nights) {
-        DataAdapter.saveNights(nights);
+        adapter.saveNights(nights);
     }
 
     public static Optional<Night> getNightById(Integer id) {
-        return DataAdapter.getNightById(id);
+        return adapter.getNightById(id);
     }
 
     public static List<Night> getOpenNights() throws IOException {
-        return DataAdapter.getNights()
+        return adapter.getNights()
                 .stream()
                 .filter(n->!n.isComplete())
                 .collect(Collectors.toList());
     }
 
     public static void saveNight(Night night) {
-        DataAdapter.saveNight(night);
+        adapter.saveNight(night);
+    }
+
+    public static void setAdapter(DataAdapter adapter) {
+        NightRepository.adapter = adapter;
     }
 }

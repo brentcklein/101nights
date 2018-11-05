@@ -15,44 +15,50 @@ public class DataAdapterTests {
      **/
     @Test
     void createNights() throws IOException {
-        DataAdapter.saveNights(Collections.emptyList());
+        DataAdapter adapter = new DataAdapter();
 
-        DataAdapter.saveNights(Arrays.asList(
+        adapter.saveNights(Collections.emptyList());
+
+        adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
                 new Night(3),
                 new Night(4)
         ));
 
-        assertEquals(4,DataAdapter.getNights().size());
+        assertEquals(4,adapter.getNights().size());
     }
 
     @Test
     void createNewNight() throws IOException {
-        DataAdapter.saveNights(Arrays.asList(
+        DataAdapter adapter = new DataAdapter();
+
+        adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
                 new Night(3),
                 new Night(4)
         ));
 
-        assertEquals(4,DataAdapter.getNights().size());
+        assertEquals(4,adapter.getNights().size());
 
-        DataAdapter.saveNight(new Night(5));
+        adapter.saveNight(new Night(5));
 
-        assertEquals(5,DataAdapter.getNights().size());
+        assertEquals(5,adapter.getNights().size());
     }
 
     @Test
     void getNightById() {
-        DataAdapter.saveNights(Arrays.asList(
+        DataAdapter adapter = new DataAdapter();
+
+        adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
                 new Night(3),
                 new Night(4)
         ));
 
-        DataAdapter.getNightById(3)
+        adapter.getNightById(3)
                 .ifPresentOrElse(
                         night->assertEquals(3,(int)night.getId()),
                         ()->fail("Night not found."));
@@ -60,31 +66,33 @@ public class DataAdapterTests {
 
     @Test
     void updateNight() throws IOException {
-        DataAdapter.saveNights(Arrays.asList(
+        DataAdapter adapter = new DataAdapter();
+
+        adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
                 new Night(3),
                 new Night(4)
         ));
 
-        DataAdapter.getNightById(2)
+        adapter.getNightById(2)
                 .ifPresentOrElse(
                         n -> {
                             n.setComplete(true);
-                            DataAdapter.saveNight(n);
+                            adapter.saveNight(n);
                         },
                         ()->fail("Could not get Night.")
                 );
 
-        DataAdapter.getNightById(2)
+        adapter.getNightById(2)
                 .ifPresentOrElse(
                         n->assertTrue(n.isComplete()),
                         ()->fail("Could not get Night.")
                 );
     }
 
-    @AfterEach
-    private void clearNights() {
-        NightRepository.saveNights(Collections.emptyList());
-    }
+//    @AfterEach
+//    private void clearNights() {
+//        NightRepository.saveNights(Collections.emptyList());
+//    }
 }

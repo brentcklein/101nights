@@ -7,9 +7,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DataAdapter {
-    private static DataSource source = new DataSource();
+    private DataSource source;
 
-    public static List<Night> getNights() throws IOException {
+    public DataAdapter() {
+        source = new DataSource();
+    }
+
+    public List<Night> getNights() throws IOException {
         List<Night> nights = new ArrayList<>(source.getNights().values());
         if (nights.size() == 0) {
             throw new IOException("Could not get list of Nights.");
@@ -18,13 +22,13 @@ public class DataAdapter {
         return nights;
     }
 
-    public static void saveNights(List<Night> nights) {
+    public void saveNights(List<Night> nights) {
         source.setNights(
                 nights.stream().collect(Collectors.toMap(Night::getId,n->n))
         );
     }
 
-    public static Optional<Night> getNightById(Integer id) {
+    public Optional<Night> getNightById(Integer id) {
         return source
                 .getNights()
                 .values()
@@ -33,7 +37,11 @@ public class DataAdapter {
                 .findFirst();
     }
 
-    public static void saveNight(Night night) {
+    public void saveNight(Night night) {
         source.setNight(night.getId(),night);
+    }
+
+    public void setSource(DataSource source) {
+        this.source = source;
     }
 }

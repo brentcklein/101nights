@@ -32,6 +32,8 @@ public class Night {
         this(id,false);
     }
 
+    public Night() { this(null); }
+
     public Integer getId() {
         return id;
     }
