@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public abstract class DataAdapter {
     protected Mode mode;
-    public DataAdapter(Mode mode) {
+    public DataAdapter(Mode mode) throws DataException {
         this.mode = mode;
     }
 

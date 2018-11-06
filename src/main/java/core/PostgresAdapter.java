@@ -17,7 +17,7 @@ public class PostgresAdapter extends DataAdapter {
     private static String password = "selector";
     private Connection connection;
 
-    public PostgresAdapter(Mode mode) throws SQLException {
+    public PostgresAdapter(Mode mode) throws DataException {
         super(mode);
         String db;
         switch (mode.name()) {
@@ -31,10 +31,15 @@ public class PostgresAdapter extends DataAdapter {
                 db = devDb;
                 break;
         }
-        connection = DriverManager.getConnection(url+db, user, password);
+
+        try {
+            connection = DriverManager.getConnection(url+db, user, password);
+        } catch (SQLException se) {
+            throw new DataException("Could not connect to database: " + se.getMessage());
+        }
     }
 
-    public PostgresAdapter() throws SQLException {
+    public PostgresAdapter() throws DataException {
         this(Mode.DEV);
     }
 
