@@ -1,6 +1,5 @@
 package core;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,20 +7,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-public class PostgresAdapter {
+public class PostgresAdapter extends DataAdapter {
     private static String url = "jdbc:postgresql://localhost:5432/";
     private static String prodDb = "selector";
     private static String devDb = "dev";
     private static String testDb = "test";
     private static String user = "selector";
     private static String password = "selector";
-    private static Connection connection;
-    private static Mode mode;
+    private Connection connection;
 
     public PostgresAdapter(Mode mode) throws SQLException {
-        this.mode = mode;
+        super(mode);
         String db;
         switch (mode.name()) {
             case "PROD":

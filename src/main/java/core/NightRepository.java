@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class NightRepository {
 
-    private static DataAdapter adapter = new DataAdapter();
+    private static MockAdapter adapter = new MockAdapter();
 
     public static List<Night> getNights() {
         return adapter.getNights();
@@ -32,7 +32,7 @@ public class NightRepository {
         adapter.saveNight(night);
     }
 
-    public static void setAdapter(DataAdapter adapter) {
+    public static void setAdapter(MockAdapter adapter) {
         NightRepository.adapter = adapter;
     }
 }

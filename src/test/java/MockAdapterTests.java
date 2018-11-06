@@ -1,7 +1,5 @@
-import core.DataAdapter;
+import core.MockAdapter;
 import core.Night;
-import core.NightRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,13 +7,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class DataAdapterTests {
+public class MockAdapterTests {
     /**
      * It should create night nights and return them
      **/
     @Test
     void createNights() throws IOException {
-        DataAdapter adapter = new DataAdapter();
+        MockAdapter adapter = new MockAdapter();
 
         adapter.saveNights(Collections.emptyList());
 
@@ -31,7 +29,7 @@ public class DataAdapterTests {
 
     @Test
     void createNewNight() {
-        DataAdapter adapter = new DataAdapter();
+        MockAdapter adapter = new MockAdapter();
 
         adapter.saveNights(Arrays.asList(
                 new Night(1),
@@ -49,7 +47,7 @@ public class DataAdapterTests {
 
     @Test
     void getNightById() {
-        DataAdapter adapter = new DataAdapter();
+        MockAdapter adapter = new MockAdapter();
 
         adapter.saveNights(Arrays.asList(
                 new Night(1),
@@ -66,7 +64,7 @@ public class DataAdapterTests {
 
     @Test
     void updateNight() {
-        DataAdapter adapter = new DataAdapter();
+        MockAdapter adapter = new MockAdapter();
 
         adapter.saveNights(Arrays.asList(
                 new Night(1),
