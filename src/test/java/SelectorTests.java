@@ -1,29 +1,38 @@
+import core.Mode;
 import core.Night;
-import core.NightRepository;
 import core.Selector;
 import static core.Cost.*;
 import static core.Partner.*;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SelectorTests {
+
+    private Selector selector;
+
+    @BeforeAll
+    void getSelector() {
+        this.selector = new Selector(Mode.TEST);
+    }
 
     /**
      * It should return a random Night object from a predetermined list.
      */
     @Test
-    void getRandomNight() throws IOException {
+    void getRandomNight() {
 
 //        Test no nights at all
-        assertEquals(0,NightRepository.getNights().size());
-        Selector.getRandomNight()
+        assertEquals(0,selector.getRepository().getNights().size());
+        selector.getRandomNight()
         .ifPresentOrElse(
                 (n)->fail("There should not be any Nights."),
                 ()->{}
@@ -31,18 +40,18 @@ public class SelectorTests {
 
 
 //        Make test nights
-        NightRepository.saveNights(Arrays.asList(
+        selector.getRepository().saveNights(Arrays.asList(
             new Night(1),
             new Night(2),
             new Night(3)
         ));
 
-        assertEquals(3,NightRepository.getNights().size());
+        assertEquals(3,selector.getRepository().getNights().size());
 
-        Selector.setRandomizer(integer -> 1);
+        selector.setRandomizer(integer -> 1);
 
 //        get random night
-        Selector.getRandomNight()
+        selector.getRandomNight()
         .ifPresentOrElse(
 //        confirm night is the second one we defined above (position 1 in 0-indexed list)
                 (n)->assertEquals(2,(int)n.getId()),
@@ -54,8 +63,8 @@ public class SelectorTests {
     * It should return a random Night object from a filtered list
     */
     @Test
-    void getFilteredNight() throws IOException {
-        NightRepository.saveNights(Arrays.asList(
+    void getFilteredNight() {
+        selector.getRepository().saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
                 new Night(3),
@@ -63,14 +72,14 @@ public class SelectorTests {
                 new Night(5)
         ));
 
-        assertEquals(5,NightRepository.getNights().size());
+        assertEquals(5,selector.getRepository().getNights().size());
 
-        Selector.setRandomizer(i->0);
+        selector.setRandomizer(i->0);
 
 //        filter out all odd ids and all ids <= 2 (should leave only id == 4)
         List<Predicate<Night>> predicates = new ArrayList<>();
         predicates.add(night->night.getId() % 2 == 0);
-        Selector.getRandomNight(predicates)
+        selector.getRandomNight(predicates)
         .ifPresentOrElse(
                 (n)->assertEquals(2, (int)n.getId()),
                 ()->fail("Could not get Night.")
@@ -78,24 +87,24 @@ public class SelectorTests {
 
 
 //        Test empty list of predicates as indicating a lack of filters
-        Selector.getRandomNight(Collections.emptyList())
+        selector.getRandomNight(Collections.emptyList())
         .ifPresentOrElse(
                 (randomNight)->assertEquals(1,(int)randomNight.getId()),
                 ()->fail("Could not get Night.")
         );
 
-        Selector.setRandomizer(new Random()::nextInt);
+        selector.setRandomizer(new Random()::nextInt);
 
 //        Test multiple predicates. Only remaining id should be 4.
         predicates.add(night->night.getId() > 2);
-        Selector.getRandomNight(predicates)
+        selector.getRandomNight(predicates)
         .ifPresentOrElse(
                 (randomNight)->assertEquals(4, (int)randomNight.getId()),
                 ()->fail("Could not get Night.")
         );
 
         predicates.add(n->n.getId()>5);
-        Selector.getRandomNight(predicates)
+        selector.getRandomNight(predicates)
         .ifPresentOrElse(
                 (n)->fail("Found Night when should have returned none."),
                 ()->{}
@@ -103,8 +112,8 @@ public class SelectorTests {
     }
 
     @Test
-    void getComplexFilteredNights() throws IOException {
-        NightRepository.saveNights(Arrays.asList(
+    void getComplexFilteredNights() {
+        selector.getRepository().saveNights(Arrays.asList(
                 new Night(1, false, false, true, false, true, MED, HIM),
                 new Night(2, true, true, false, false, false, LOW, HER),
                 new Night(3, false, true, false, false, false, FREE, HIM),
@@ -117,7 +126,7 @@ public class SelectorTests {
                 new Night(10)
         ));
 
-        assertEquals(10, NightRepository.getNights().size());
+        assertEquals(10, selector.getRepository().getNights().size());
 
         Predicate<Night> open = n->!n.isComplete();
         Predicate<Night> eCard = Night::hasECard;
@@ -130,58 +139,58 @@ public class SelectorTests {
         Predicate<Night> hers = n->n.getPartner().equals(HER);
         Predicate<Night> both = n->n.getPartner().equals(BOTH);
 
-        Selector.setRandomizer(i->1);
+        selector.setRandomizer(i->1);
 
-        Selector.getRandomNight(Collections.singletonList(open))
+        selector.getRandomNight(Collections.singletonList(open))
         .ifPresentOrElse(
                 (night -> assertEquals(3, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.getRandomNight(Collections.singletonList(eCard))
+        selector.getRandomNight(Collections.singletonList(eCard))
         .ifPresentOrElse(
                 (night -> assertEquals(3, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.getRandomNight(Arrays.asList(free,travel))
+        selector.getRandomNight(Arrays.asList(free,travel))
         .ifPresent(
                 (night -> fail("Should not have found Night."))
         );
 
-        Selector.getRandomNight(Collections.singletonList(food))
+        selector.getRandomNight(Collections.singletonList(food))
         .ifPresentOrElse(
                 (night -> assertEquals(5, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.getRandomNight(Collections.singletonList(expensive))
+        selector.getRandomNight(Collections.singletonList(expensive))
         .ifPresentOrElse(
                 (night -> assertEquals(4, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.getRandomNight(Collections.singletonList(his))
+        selector.getRandomNight(Collections.singletonList(his))
         .ifPresentOrElse(
                 (night -> assertEquals(3, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.getRandomNight(Collections.singletonList(hers))
+        selector.getRandomNight(Collections.singletonList(hers))
         .ifPresentOrElse(
                 (night -> assertEquals(4, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.getRandomNight(Collections.singletonList(both))
+        selector.getRandomNight(Collections.singletonList(both))
         .ifPresentOrElse(
                 (night -> assertEquals(9, (int)night.getId())),
                 () -> fail("Could not get Night.")
         );
 
-        Selector.setRandomizer(new Random()::nextInt);
+        selector.setRandomizer(new Random()::nextInt);
 
-        Selector.getRandomNight(Arrays.asList(eCard,food,props))
+        selector.getRandomNight(Arrays.asList(eCard,food,props))
         .ifPresentOrElse(
                 (night -> assertEquals(5,(int)night.getId())),
                 () -> fail("Could not get Night.")
@@ -190,6 +199,6 @@ public class SelectorTests {
 
     @AfterEach
     private void clearNights() {
-        NightRepository.saveNights(Collections.emptyList());
+        selector.getRepository().saveNights(Collections.emptyList());
     }
 }

@@ -7,32 +7,40 @@ import java.util.stream.Collectors;
 
 public class NightRepository {
 
-    private static MockAdapter adapter = new MockAdapter();
+    private DataAdapter adapter;
 
-    public static List<Night> getNights() {
+    public NightRepository(Mode mode) {
+        this.setAdapter(new MockAdapter(mode));
+    }
+
+    public NightRepository() {
+        this(Mode.DEV);
+    }
+
+    public List<Night> getNights() {
         return adapter.getNights();
     }
 
-    public static void saveNights(List<Night> nights) {
+    public void saveNights(List<Night> nights) {
         adapter.saveNights(nights);
     }
 
-    public static Optional<Night> getNightById(Integer id) {
+    public Optional<Night> getNightById(Integer id) {
         return adapter.getNightById(id);
     }
 
-    public static List<Night> getOpenNights() throws IOException {
+    public List<Night> getOpenNights() {
         return adapter.getNights()
                 .stream()
                 .filter(n->!n.isComplete())
                 .collect(Collectors.toList());
     }
 
-    public static void saveNight(Night night) {
+    public void saveNight(Night night) {
         adapter.saveNight(night);
     }
 
-    public static void setAdapter(MockAdapter adapter) {
-        NightRepository.adapter = adapter;
+    public void setAdapter(DataAdapter adapter) {
+        this.adapter = adapter;
     }
 }

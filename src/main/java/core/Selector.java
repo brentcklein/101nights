@@ -1,22 +1,30 @@
 package core;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Selector {
-    private static Function<Integer,Integer> randomizer = new Random()::nextInt;
+    private Function<Integer,Integer> randomizer = new Random()::nextInt;
+    private NightRepository repository;
 
-    public static void setRandomizer(Function<Integer,Integer> randomizer) {
-        Selector.randomizer = randomizer;
+    public Selector(Mode mode) {
+        this.repository = new NightRepository(mode);
     }
 
-    public static Optional<Night> getRandomNight(List<Predicate<Night>> predicates) {
+    public Selector() {
+        this(Mode.DEV);
+    }
+
+    public void setRandomizer(Function<Integer,Integer> randomizer) {
+        this.randomizer = randomizer;
+    }
+
+    public Optional<Night> getRandomNight(List<Predicate<Night>> predicates) {
 //        This approach works because the working set is always limited. What would the
 //        approach be if the set could be arbitrarily large?
-        List<Night> filteredList = NightRepository.getNights();
+        List<Night> filteredList = repository.getNights();
 
 //        Is there a better way to protect against empty lists of predicates? Should we throw an exception?
         predicates = predicates.size() > 0 ? predicates : Collections.singletonList((night->true));
@@ -34,7 +42,11 @@ public class Selector {
 
     }
 
-    public static Optional<Night> getRandomNight() {
+    public Optional<Night> getRandomNight() {
         return getRandomNight(Collections.singletonList((night -> true)));
+    }
+
+    public NightRepository getRepository() {
+        return repository;
     }
 }
