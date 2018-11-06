@@ -3,6 +3,7 @@ package core;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -10,13 +11,34 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class PostgresAdapter {
-    private static String url = "jdbc:postgresql://localhost:5432/selector";
+    private static String url = "jdbc:postgresql://localhost:5432/";
+    private static String prodDb = "selector";
+    private static String devDb = "dev";
+    private static String testDb = "test";
     private static String user = "selector";
     private static String password = "selector";
     private static Connection connection;
+    private static Mode mode;
+
+    public PostgresAdapter(Mode mode) throws SQLException {
+        this.mode = mode;
+        String db;
+        switch (mode.name()) {
+            case "PROD":
+                db = prodDb;
+                break;
+            case "TEST":
+                db = testDb;
+                break;
+            default:
+                db = devDb;
+                break;
+        }
+        connection = DriverManager.getConnection(url+db, user, password);
+    }
 
     public PostgresAdapter() throws SQLException {
-        connection = DriverManager.getConnection(url, user, password);
+        this(Mode.DEV);
     }
 
     public String getVersion() {
@@ -34,7 +56,7 @@ public class PostgresAdapter {
         return "Could not get version number.";
     }
 
-    public List<Night> getNights() throws IOException {
+    public List<Night> getNights() {
         List<Night> nights = new ArrayList<>();
 
         try {
@@ -59,10 +81,6 @@ public class PostgresAdapter {
             logSQLException(se);
         }
 
-        if (nights.size() == 0) {
-            throw new IOException("Could not get list of Nights.");
-        }
-
         return nights;
     }
 
@@ -72,16 +90,25 @@ public class PostgresAdapter {
             PreparedStatement pst = connection.prepareStatement(Query.SAVENIGHT.getValue());
             for (Night night :
                 nights) {
-                if (night.getId() != null) {
-                    pst.setInt(1,night.getId());
-                }
-                pst.setBoolean(1,night.isComplete());
-                pst.setBoolean(2,night.hasECard());
-                pst.setBoolean(3,night.involvesFood());
-                pst.setBoolean(4,night.involvesProps());
-                pst.setBoolean(5,night.involvesTravel());
-                pst.setString(6,night.getCost().name());
-                pst.setString(7,night.getPartner().name());
+
+//                TODO: Figure out how to avoid making a separate db call for the next id for each iteration
+                ResultSet id = connection
+                        .createStatement()
+                        .executeQuery(
+                                Query.NEXTID.getValue()
+                        );
+                id.next();
+                pst.setInt(
+                        1,
+                        night.getId() == null ? id.getInt(1) : night.getId()
+                );
+                pst.setBoolean(2,night.isComplete());
+                pst.setBoolean(3,night.hasECard());
+                pst.setBoolean(4,night.involvesFood());
+                pst.setBoolean(5,night.involvesProps());
+                pst.setBoolean(6,night.involvesTravel());
+                pst.setString(7,night.getCost().name());
+                pst.setString(8,night.getPartner().name());
 
                 pst.addBatch();
             }
@@ -91,19 +118,46 @@ public class PostgresAdapter {
             logSQLException(se);
         }
     }
-//
-//    public static Optional<Night> getNightById(Integer id) {
-//        return source
-//                .getNights()
-//                .values()
-//                .stream()
-//                .filter(n -> n.getId().equals(id))
-//                .findFirst();
-//    }
-//
-//    public static void saveNight(Night night) {
-//        source.setNight(night.getId(),night);
-//    }
+
+    public Optional<Night> getNightById(Integer id) {
+        try {
+            PreparedStatement st = connection.prepareStatement(Query.GETNIGHTBYID.getValue());
+            st.setInt(1,id);
+
+            ResultSet rs = st.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(new Night(
+                        rs.getInt(1),
+                        rs.getBoolean(2),
+                        rs.getBoolean(3),
+                        rs.getBoolean(4),
+                        rs.getBoolean(5),
+                        rs.getBoolean(6),
+                        Cost.valueOf(rs.getString(7)),
+                        Partner.valueOf(rs.getString(8))
+                ));
+            }
+        } catch (SQLException se) {
+            logSQLException(se);
+        }
+
+        return Optional.empty();
+    }
+
+    public void saveNight(Night night) {
+        saveNights(Collections.singletonList(night));
+    }
+
+    public void clearNights() throws SQLException {
+        if (!mode.equals(Mode.TEST)) {
+//            Don't let the nights be cleared if we're not running tests
+            throw new SQLException("Can't truncate nights when not in test mode!!");
+        }
+        String query = "TRUNCATE nights;";
+        Statement st = connection.createStatement();
+        st.executeUpdate(query);
+    }
 
     private static void logSQLException(SQLException se) {
         Logger lgr = Logger.getLogger(PostgresAdapter.class.getName());

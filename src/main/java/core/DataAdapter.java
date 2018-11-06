@@ -1,6 +1,5 @@
 package core;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +12,8 @@ public class DataAdapter {
         source = new DataSource();
     }
 
-    public List<Night> getNights() throws IOException {
+    public List<Night> getNights() {
         List<Night> nights = new ArrayList<>(source.getNights().values());
-        if (nights.size() == 0) {
-            throw new IOException("Could not get list of Nights.");
-        }
 
         return nights;
     }

@@ -22,19 +22,12 @@ public class SelectorTests {
     void getRandomNight() throws IOException {
 
 //        Test no nights at all
-        try {
-            assertEquals(0,NightRepository.getNights().size());
-            Selector.getRandomNight()
-            .ifPresentOrElse(
-                    (n)->fail("There should not be any Nights."),
-                    ()->{}
-            );
-        } catch (IOException ioe) {
-            assertEquals(
-                    "Could not get list of Nights.",
-                    ioe.getMessage()
-            );
-        }
+        assertEquals(0,NightRepository.getNights().size());
+        Selector.getRandomNight()
+        .ifPresentOrElse(
+                (n)->fail("There should not be any Nights."),
+                ()->{}
+        );
 
 
 //        Make test nights

@@ -1,15 +1,14 @@
+import core.Cost;
+import core.Mode;
 import core.Night;
 import core.PostgresAdapter;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PostgresAdapterTests {
@@ -18,15 +17,15 @@ public class PostgresAdapterTests {
     @BeforeAll
     void connectToDatabase() {
         try {
-            adapter = new PostgresAdapter();
+            adapter = new PostgresAdapter(Mode.TEST);
         } catch (SQLException se) {
             fail("Could not connect to the database.");
         }
     }
 
     @Test
-    void createNights() throws IOException {
-        adapter.saveNights(Collections.emptyList());
+    void createAndGetNights() {
+        assertEquals(0,adapter.getNights().size());
 
         adapter.saveNights(Arrays.asList(
                 new Night(),
@@ -36,16 +35,76 @@ public class PostgresAdapterTests {
         ));
 
         assertEquals(4,adapter.getNights().size());
+
     }
 
     @Test
-    void getNights() {
-        try {
-            assertEquals(4,adapter.getNights().size());
-        } catch (IOException ioe) {
-            fail("Could not get nights.");
-        }
+    void createAndGetNight() {
+        adapter.getNightById(1)
+                .ifPresent(night -> fail("Night should not exist."));
+
+        adapter.saveNight(new Night());
+
+        List<Night> nights = adapter.getNights();
+        assertEquals(1,nights.size());
+
+        adapter.getNightById(nights.get(0).getId())
+                .ifPresentOrElse(
+                        night -> assertEquals(nights.get(0).getId(),night.getId()),
+                        ()->fail("Night not found."));
     }
 
+    @Test
+    void updateNight() {
+        adapter.saveNight(new Night(1));
 
+        adapter.getNightById(1)
+        .flatMap(
+                night -> {
+                    assertFalse(night.isComplete());
+                    night.setComplete(true);
+                    adapter.saveNight(night);
+                    return adapter.getNightById(1);
+
+                })
+        .ifPresentOrElse(
+                night -> assertTrue(night.isComplete()),
+                () -> fail("Could not get Night.")
+        );
+    }
+
+    @Test
+    void updateNights() {
+        adapter.saveNights(Arrays.asList(
+                new Night(1),
+                new Night(2),
+                new Night(3),
+                new Night(4)
+        ));
+
+        List<Night> nights = adapter.getNights();
+
+        nights.get(0).setComplete(true);
+        nights.get(1).setCost(Cost.HIGH);
+        nights.get(2).setHasECard(true);
+        nights.get(3).setInvolvesTravel(true);
+
+        adapter.saveNights(nights);
+
+        nights = adapter.getNights();
+
+        assertTrue(nights.get(0).isComplete());
+        assertEquals(Cost.HIGH, nights.get(1).getCost());
+        assertTrue(nights.get(2).hasECard());
+        assertTrue(nights.get(3).involvesTravel());
+    }
+
+    @AfterEach
+    void clearDatabase() {
+        try {
+            adapter.clearNights();
+        } catch (SQLException se) {
+            fail("Could not clear nights.");
+        }
+    }
 }

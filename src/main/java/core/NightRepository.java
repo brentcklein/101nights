@@ -9,7 +9,7 @@ public class NightRepository {
 
     private static DataAdapter adapter = new DataAdapter();
 
-    public static List<Night> getNights() throws IOException {
+    public static List<Night> getNights() {
         return adapter.getNights();
     }
 

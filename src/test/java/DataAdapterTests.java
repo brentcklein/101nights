@@ -30,7 +30,7 @@ public class DataAdapterTests {
     }
 
     @Test
-    void createNewNight() throws IOException {
+    void createNewNight() {
         DataAdapter adapter = new DataAdapter();
 
         adapter.saveNights(Arrays.asList(
@@ -65,7 +65,7 @@ public class DataAdapterTests {
     }
 
     @Test
-    void updateNight() throws IOException {
+    void updateNight() {
         DataAdapter adapter = new DataAdapter();
 
         adapter.saveNights(Arrays.asList(
