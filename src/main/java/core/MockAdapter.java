@@ -27,7 +27,9 @@ public class MockAdapter extends DataAdapter{
         source.setNights(
                 nights.stream().collect(Collectors.toMap(night -> {
                     if (night.getId() == null) {
-                        return source.getNextId();
+                        Integer nextId = source.getNextId();
+                        night.setId(nextId);
+                        return nextId;
                     }
                     return night.getId();
                 }, Function.identity()))
