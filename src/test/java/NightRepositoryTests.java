@@ -29,78 +29,111 @@ public class NightRepositoryTests {
 
     @Test
     void saveNights() {
-        repository.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+        try {
+            repository.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        List<Night> nights = repository.getNights();
+            List<Night> nights = repository.getNights();
 
-        assertEquals(4,nights.size());
+            assertEquals(4,nights.size());
+        } catch (DataException de) {
+            fail("DataException thrown.");
+        }
     }
 
     @Test
     void getNightById() {
-        repository.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+        try {
+            repository.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        repository.getNightById(3)
-                .ifPresentOrElse(
-                        night->assertEquals(3,(int)night.getId()),
-                        ()->fail("Night not found."));
+            repository.getNightById(3)
+                    .ifPresentOrElse(
+                            night->assertEquals(3,(int)night.getId()),
+                            ()->fail("Night not found."));
+        } catch (DataException de) {
+            fail("DataException thrown.");
+        }
     }
 
     @Test
     void updateNight() {
-        repository.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+        try {
+            repository.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        repository.getNightById(2)
-                .ifPresent(
-                        n -> {
-                            assertFalse(n.isComplete());
-                            n.setComplete(true);
-                            repository.saveNight(n);
-                        }
-                );
+            repository.getNightById(2)
+                    .ifPresent(
+                            n -> {
+                                try {
+                                    assertFalse(n.isComplete());
+                                    n.setComplete(true);
+                                    repository.saveNight(n);
+                                } catch (DataException de) {
+                                    fail("DataException thrown.");
+                                }
+                            }
+                    );
 
-        repository.getNightById(2)
-                .ifPresentOrElse(
-                        n->assertTrue(n.isComplete()),
-                        ()->fail("Could not get Night.")
-                );
+            repository.getNightById(2)
+                    .ifPresentOrElse(
+                            n->assertTrue(n.isComplete()),
+                            ()->fail("Could not get Night.")
+                    );
+        } catch (DataException de) {
+            fail("DataException thrown.");
+        }
     }
 
     @Test
-    void getOpenNights() throws IOException {
-        repository.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2, true),
-                new Night(3, true),
-                new Night(4)
-        ));
+    void getOpenNights() {
+        try {
+            repository.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2, true),
+                    new Night(3, true),
+                    new Night(4)
+            ));
 
-        List<Night> nights = repository.getOpenNights();
+            List<Night> nights = repository.getOpenNights();
 
-        assertEquals(2,nights.size());
+            assertEquals(2,nights.size());
 
-        assertTrue(nights.stream().allMatch(
-                night -> Arrays.asList(1,4).contains(night.getId())
-        ));
+            assertTrue(nights.stream().allMatch(
+                    night -> Arrays.asList(1,4).contains(night.getId())
+            ));
+        } catch (DataException de) {
+            fail("DataException thrown.");
+        }
     }
 
     @AfterEach
     private void clearNights() {
-        repository.saveNights(Collections.emptyList());
+        try {
+            repository.saveNights(Collections.emptyList());
+        } catch (DataException de) {
+            fail("DataException thrown.");
+        }
+    }
+
+    @AfterEach
+    void clearDatabase() {
+        try {
+            repository.getAdapter().clearNights();
+        } catch (DataException de) {
+            fail("Could not clear nights: " + de.getMessage());
+        }
     }
 }

@@ -21,7 +21,7 @@ public class Selector {
         this.randomizer = randomizer;
     }
 
-    public Optional<Night> getRandomNight(List<Predicate<Night>> predicates) {
+    public Optional<Night> getRandomNight(List<Predicate<Night>> predicates) throws DataException {
 //        This approach works because the working set is always limited. What would the
 //        approach be if the set could be arbitrarily large?
         List<Night> filteredList = repository.getNights();
@@ -42,7 +42,7 @@ public class Selector {
 
     }
 
-    public Optional<Night> getRandomNight() {
+    public Optional<Night> getRandomNight() throws DataException {
         return getRandomNight(Collections.singletonList((night -> true)));
     }
 

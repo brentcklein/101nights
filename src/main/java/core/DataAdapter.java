@@ -9,8 +9,9 @@ public abstract class DataAdapter {
         this.mode = mode;
     }
 
-    public abstract List<Night> getNights();
-    public abstract Optional<Night> getNightById(Integer id);
-    public abstract void saveNights(List<Night> nights);
-    public abstract void saveNight(Night night);
+    public abstract List<Night> getNights() throws DataException;
+    public abstract Optional<Night> getNightById(Integer id) throws DataException;
+    public abstract void saveNights(List<Night> nights) throws DataException;
+    public abstract void saveNight(Night night) throws DataException;
+    public abstract void clearNights() throws DataException;
 }

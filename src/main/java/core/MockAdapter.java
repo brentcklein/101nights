@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,4 +44,6 @@ public class MockAdapter extends DataAdapter{
     public void setSource(DataSource source) {
         this.source = source;
     }
+
+    public void clearNights() { saveNights(Collections.emptyList()); }
 }

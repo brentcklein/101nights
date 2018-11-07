@@ -43,22 +43,7 @@ public class PostgresAdapter extends DataAdapter {
         this(Mode.DEV);
     }
 
-    public String getVersion() {
-        try {
-            Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT VERSION()");
-
-            if (rs.next()) {
-                return rs.getString(1);
-            }
-        } catch (SQLException se) {
-            logSQLException(se);
-        }
-
-        return "Could not get version number.";
-    }
-
-    public List<Night> getNights() {
+    public List<Night> getNights() throws DataException {
         List<Night> nights = new ArrayList<>();
 
         try {
@@ -81,12 +66,13 @@ public class PostgresAdapter extends DataAdapter {
             }
         } catch (SQLException se) {
             logSQLException(se);
+            throw new DataException("Could not get Nights.");
         }
 
         return nights;
     }
 
-    public void saveNights(List<Night> nights) {
+    public void saveNights(List<Night> nights) throws DataException {
 
         try {
             PreparedStatement pst = connection.prepareStatement(Query.SAVENIGHT.getValue());
@@ -118,10 +104,11 @@ public class PostgresAdapter extends DataAdapter {
             pst.executeBatch();
         } catch (SQLException se) {
             logSQLException(se);
+            throw new DataException("Could not save Nights.");
         }
     }
 
-    public Optional<Night> getNightById(Integer id) {
+    public Optional<Night> getNightById(Integer id) throws DataException {
         try {
             PreparedStatement st = connection.prepareStatement(Query.GETNIGHTBYID.getValue());
             st.setInt(1,id);
@@ -142,23 +129,30 @@ public class PostgresAdapter extends DataAdapter {
             }
         } catch (SQLException se) {
             logSQLException(se);
+            throw new DataException("Could not get Night.");
         }
 
         return Optional.empty();
     }
 
-    public void saveNight(Night night) {
+    public void saveNight(Night night) throws DataException {
         saveNights(Collections.singletonList(night));
     }
 
-    public void clearNights() throws SQLException {
+    public void clearNights() throws DataException {
         if (!mode.equals(Mode.TEST)) {
 //            Don't let the nights be cleared if we're not running tests
-            throw new SQLException("Can't truncate nights when not in test mode!!");
+            throw new DataException("Can't truncate nights when not in test mode!!");
         }
-        String query = "TRUNCATE nights;";
-        Statement st = connection.createStatement();
-        st.executeUpdate(query);
+
+        try {
+            String query = "TRUNCATE nights;";
+            Statement st = connection.createStatement();
+            st.executeUpdate(query);
+        } catch (SQLException se) {
+            throw new DataException("Could not clear nights: " + se.getMessage());
+        }
+
     }
 
     private static void logSQLException(SQLException se) {

@@ -29,72 +29,92 @@ public class MockAdapterTests {
      **/
     @Test
     void createNights() {
-        adapter.saveNights(Collections.emptyList());
+        try {
+            adapter.saveNights(Collections.emptyList());
 
-        adapter.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+            adapter.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        assertEquals(4,adapter.getNights().size());
+            assertEquals(4,adapter.getNights().size());
+        } catch (DataException de) {
+            fail("Could not create Nights.");
+        }
     }
 
     @Test
     void createNewNight() {
-        adapter.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+        try {
+            adapter.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        assertEquals(4,adapter.getNights().size());
+            assertEquals(4,adapter.getNights().size());
 
-        adapter.saveNight(new Night(5));
+            adapter.saveNight(new Night(5));
 
-        assertEquals(5,adapter.getNights().size());
+            assertEquals(5,adapter.getNights().size());
+        } catch (DataException de) {
+            fail("Could not create Night.");
+        }
     }
 
     @Test
     void getNightById() {
-        adapter.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+        try {
+            adapter.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        adapter.getNightById(3)
-                .ifPresentOrElse(
-                        night->assertEquals(3,(int)night.getId()),
-                        ()->fail("Night not found."));
+            adapter.getNightById(3)
+                    .ifPresentOrElse(
+                            night->assertEquals(3,(int)night.getId()),
+                            ()->fail("Night not found."));
+        } catch (DataException de) {
+            fail("Could not get Night.");
+        }
     }
 
     @Test
     void updateNight() {
-        adapter.saveNights(Arrays.asList(
-                new Night(1),
-                new Night(2),
-                new Night(3),
-                new Night(4)
-        ));
+        try {
+            adapter.saveNights(Arrays.asList(
+                    new Night(1),
+                    new Night(2),
+                    new Night(3),
+                    new Night(4)
+            ));
 
-        adapter.getNightById(2)
-                .ifPresentOrElse(
-                        n -> {
-                            n.setComplete(true);
-                            adapter.saveNight(n);
-                        },
-                        ()->fail("Could not get Night.")
-                );
+            adapter.getNightById(2)
+                    .ifPresentOrElse(
+                            n -> {
+                                n.setComplete(true);
+                                try {
+                                    adapter.saveNight(n);
+                                } catch (DataException de) {
+                                    fail("Could not save Night.");
+                                }
+                            },
+                            ()->fail("Could not get Night.")
+                    );
 
-        adapter.getNightById(2)
-                .ifPresentOrElse(
-                        n->assertTrue(n.isComplete()),
-                        ()->fail("Could not get Night.")
-                );
+            adapter.getNightById(2)
+                    .ifPresentOrElse(
+                            n->assertTrue(n.isComplete()),
+                            ()->fail("Could not get Night.")
+                    );
+        } catch (DataException de) {
+            fail("Could not .");
+        }
     }
 
 //    @AfterEach
