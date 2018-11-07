@@ -26,7 +26,6 @@ public class Selector {
 //        approach be if the set could be arbitrarily large?
         List<Night> filteredList = repository.getNights();
 
-//        Is there a better way to protect against empty lists of predicates? Should we throw an exception?
         predicates = predicates.size() > 0 ? predicates : Collections.singletonList((night->true));
 
         filteredList = filteredList.stream().filter(
