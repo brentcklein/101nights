@@ -8,12 +8,12 @@ import java.util.stream.Collectors;
 public class MockAdapter extends DataAdapter{
     private DataSource source;
 
-    public MockAdapter(Mode mode) {
+    public MockAdapter(Mode mode) throws DataException {
         super(mode);
         source = new DataSource();
     }
 
-    public MockAdapter() {
+    public MockAdapter() throws DataException {
         this(Mode.DEV);
     }
 

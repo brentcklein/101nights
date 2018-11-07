@@ -1,3 +1,4 @@
+import core.DataException;
 import core.Mode;
 import core.Night;
 import core.Selector;
@@ -21,7 +22,11 @@ public class SelectorTests {
 
     @BeforeAll
     void getSelector() {
-        this.selector = new Selector(Mode.TEST);
+        try {
+            this.selector = new Selector(Mode.TEST);
+        } catch (DataException de) {
+            fail("Could not connect to database.");
+        }
     }
 
     /**

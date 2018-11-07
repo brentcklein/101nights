@@ -1,7 +1,4 @@
-import core.Cost;
-import core.Mode;
-import core.Night;
-import core.PostgresAdapter;
+import core.*;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +15,7 @@ public class PostgresAdapterTests {
     void connectToDatabase() {
         try {
             adapter = new PostgresAdapter(Mode.TEST);
-        } catch (SQLException se) {
+        } catch (DataException se) {
             fail("Could not connect to the database.");
         }
     }

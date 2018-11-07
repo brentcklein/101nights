@@ -1,3 +1,4 @@
+import core.DataException;
 import core.Mode;
 import core.Night;
 import core.NightRepository;
@@ -19,7 +20,11 @@ public class NightRepositoryTests {
 
     @BeforeAll
     void createRepository() {
-        this.repository = new NightRepository(Mode.TEST);
+        try {
+            this.repository = new NightRepository(Mode.TEST);
+        } catch (DataException de) {
+            fail("Could not connect to database.");
+        }
     }
 
     @Test

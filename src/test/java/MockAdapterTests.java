@@ -1,20 +1,34 @@
+import core.DataAdapter;
+import core.DataException;
 import core.MockAdapter;
 import core.Night;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MockAdapterTests {
+    private DataAdapter adapter;
+
+    @BeforeAll
+    void getAdapter() {
+        try {
+            adapter = new MockAdapter();
+        } catch (DataException de) {
+            fail("Could not connect to database.");
+        }
+    }
+
     /**
      * It should create night nights and return them
      **/
     @Test
-    void createNights() throws IOException {
-        MockAdapter adapter = new MockAdapter();
-
+    void createNights() {
         adapter.saveNights(Collections.emptyList());
 
         adapter.saveNights(Arrays.asList(
@@ -29,8 +43,6 @@ public class MockAdapterTests {
 
     @Test
     void createNewNight() {
-        MockAdapter adapter = new MockAdapter();
-
         adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
@@ -47,8 +59,6 @@ public class MockAdapterTests {
 
     @Test
     void getNightById() {
-        MockAdapter adapter = new MockAdapter();
-
         adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),
@@ -64,8 +74,6 @@ public class MockAdapterTests {
 
     @Test
     void updateNight() {
-        MockAdapter adapter = new MockAdapter();
-
         adapter.saveNights(Arrays.asList(
                 new Night(1),
                 new Night(2),

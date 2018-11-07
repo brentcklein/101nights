@@ -1,6 +1,5 @@
 package core;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,11 +8,11 @@ public class NightRepository {
 
     private DataAdapter adapter;
 
-    public NightRepository(Mode mode) {
+    public NightRepository(Mode mode) throws DataException {
         this.setAdapter(new MockAdapter(mode));
     }
 
-    public NightRepository() {
+    public NightRepository() throws DataException {
         this(Mode.DEV);
     }
 

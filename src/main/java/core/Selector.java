@@ -9,11 +9,11 @@ public class Selector {
     private Function<Integer,Integer> randomizer = new Random()::nextInt;
     private NightRepository repository;
 
-    public Selector(Mode mode) {
+    public Selector(Mode mode) throws DataException {
         this.repository = new NightRepository(mode);
     }
 
-    public Selector() {
+    public Selector() throws DataException {
         this(Mode.DEV);
     }
 
