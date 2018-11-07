@@ -9,6 +9,11 @@ import org.junit.jupiter.api.TestInstance;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -118,13 +123,35 @@ public class NightRepositoryTests {
         }
     }
 
-    @AfterEach
-    private void clearNights() {
-        try {
-            repository.saveNights(Collections.emptyList());
-        } catch (DataException de) {
-            fail("DataException thrown.");
+    @Test
+    void loadNightsFromFile() {
+        try (PrintWriter file = new PrintWriter("test.json")) {
+            file.println("[{\"complete\": \"true\"},{\"erroneous\": \"field\"},{}]");
+        } catch (FileNotFoundException fnf) {
+            fail("Could not create test json file.");
         }
+
+        try {
+            repository.loadNightsFromFile("test.json");
+            assertEquals(3,repository.getNights().size());
+
+            List<Night> nights = repository.getNights();
+
+            assertTrue(nights.get(0).isComplete());
+            assertFalse(nights.get(1).isComplete());
+
+            repository.getNightById(1)
+                    .ifPresentOrElse(
+                            night -> assertTrue(night.isComplete()),
+                            ()->fail("Could not get Night.")
+                    );
+        } catch (IOException ioe) {
+            fail("Could not open test json file.");
+        } catch (DataException de) {
+            fail("Could not save or get Nights.");
+        }
+
+        new File("test.json").delete();
     }
 
     @AfterEach

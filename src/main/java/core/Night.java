@@ -38,6 +38,8 @@ public class Night {
         return id;
     }
 
+    public void setId(Integer id) { this.id = id; }
+
     public boolean isComplete() {
         return complete;
     }
