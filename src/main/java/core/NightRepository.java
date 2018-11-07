@@ -9,7 +9,7 @@ public class NightRepository {
     private DataAdapter adapter;
 
     public NightRepository(Mode mode) throws DataException {
-        this.setAdapter(new PostgresAdapter(mode));
+        this.setAdapter(new MockAdapter(mode));
     }
 
     public NightRepository() throws DataException {
