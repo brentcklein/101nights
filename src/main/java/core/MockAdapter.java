@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MockAdapter extends DataAdapter{
@@ -24,7 +25,12 @@ public class MockAdapter extends DataAdapter{
 
     public void saveNights(List<Night> nights) {
         source.setNights(
-                nights.stream().collect(Collectors.toMap(Night::getId,n->n))
+                nights.stream().collect(Collectors.toMap(night -> {
+                    if (night.getId() == null) {
+                        return source.getNextId();
+                    }
+                    return night.getId();
+                }, Function.identity()))
         );
     }
 

@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class DataSource {
     private Map<Integer,Night> nights;
+    private Integer nextId = 0;
 
     public DataSource() {
         this.nights = new HashMap<>();
@@ -20,5 +21,9 @@ public class DataSource {
 
     public void setNight(Integer index, Night night) {
         nights.put(index,night);
+    }
+
+    public Integer getNextId() {
+        return ++nextId;
     }
 }
