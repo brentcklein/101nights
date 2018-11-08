@@ -16,7 +16,7 @@ public class NightRepository {
     private DataAdapter adapter;
 
     public NightRepository(Mode mode) throws DataException {
-        this.setAdapter(new MockAdapter(mode));
+        this.setAdapter(new PostgresAdapter(mode));
     }
 
     public NightRepository() throws DataException {
