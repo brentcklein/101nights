@@ -126,7 +126,7 @@ public class NightRepositoryTests {
     @Test
     void loadNightsFromFile() {
         try (PrintWriter file = new PrintWriter("test.json")) {
-            file.println("[{\"complete\": \"true\"},{\"erroneous\": \"field\"},{}]");
+            file.println("[{\"id\": 1,\"complete\": \"true\"},{\"id\":2,\"erroneous\": \"field\"},{\"id\":3}]");
         } catch (FileNotFoundException fnf) {
             fail("Could not create test json file.");
         }
