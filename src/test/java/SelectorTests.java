@@ -243,7 +243,7 @@ public class SelectorTests {
                             (night -> assertEquals(2,(int)night.getId())),
                             Assertions::fail);
 
-            filters.put("cost",HIGH);
+            filters.put("cost","HIGH");
             selector.getRandomNight(filters)
                     .ifPresentOrElse(
                             (night -> assertEquals(4,(int)night.getId())),
