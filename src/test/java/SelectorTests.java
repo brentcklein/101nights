@@ -5,10 +5,7 @@ import core.Selector;
 import static core.Cost.*;
 import static core.Partner.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -212,6 +209,47 @@ public class SelectorTests {
                     );
         } catch (DataException de) {
             fail("DataException thrown.");
+        }
+    }
+
+    @Test
+    void getRandomNightWithFilters() {
+        selector.setRandomizer(i->0);
+
+        try {
+            selector.getRepository().saveNights(Arrays.asList(
+                    new Night(1, false, false, true, false, true, MED, HIM),
+                    new Night(2, true, true, false, false, false, LOW, HER),
+                    new Night(3, false, true, false, false, false, FREE, HIM),
+                    new Night(4, true, false, false, true, false, HIGH, HER),
+                    new Night(5, false, true, true, true, false, MED, HIM),
+                    new Night(6, false, true, false, false, false, FREE, HER),
+                    new Night(7),
+                    new Night(8, false, false, true, false, false, LOW, HIM),
+                    new Night(9),
+                    new Night(10)
+            ));
+
+            selector.getRandomNight((Map<String, ?>) null)
+                    .ifPresentOrElse(
+                            night -> assertEquals(1,(int)night.getId()),
+                            Assertions::fail
+                    );
+
+            Map<String,Object> filters = new HashMap<>();
+            filters.put("complete",true);
+            selector.getRandomNight(filters)
+                    .ifPresentOrElse(
+                            (night -> assertEquals(2,(int)night.getId())),
+                            Assertions::fail);
+
+            filters.put("cost",HIGH);
+            selector.getRandomNight(filters)
+                    .ifPresentOrElse(
+                            (night -> assertEquals(4,(int)night.getId())),
+                            Assertions::fail);
+        } catch (DataException de) {
+            fail("Couldn't get Night.");
         }
     }
 

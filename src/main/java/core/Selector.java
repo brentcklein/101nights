@@ -1,5 +1,10 @@
 package core;
 
+import javax.servlet.http.Part;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -26,7 +31,7 @@ public class Selector {
 //        approach be if the set could be arbitrarily large?
         List<Night> filteredList = repository.getNights();
 
-        predicates = predicates.size() > 0 ? predicates : Collections.singletonList((night->true));
+        predicates = predicates != null && predicates.size() > 0 ? predicates : Collections.singletonList((night->true));
 
         filteredList = filteredList.stream().filter(
                 predicates.stream().reduce(Predicate::and).orElse(t->false)
@@ -39,6 +44,36 @@ public class Selector {
             return Optional.empty();
         }
 
+    }
+    
+    public Optional<Night> getRandomNight(Map<String,?> filters) throws DataException {
+        filters = filters != null ? filters : Collections.emptyMap();
+
+        List<Predicate<Night>> predicates = new ArrayList<>();
+
+        filters.forEach((k,v) -> {
+            try {
+                Method getter = new PropertyDescriptor(k, Night.class).getReadMethod();
+
+                if (getter != null) {
+                    predicates.add(n -> {
+                        try {
+                            if (Enum.class.isAssignableFrom(getter.getReturnType())) {
+                                Enum enumValue = (Enum)getter.invoke(n);
+                                return v.equals(enumValue.name());
+                            }
+                            return v.equals(getter.invoke(n));
+                        } catch (IllegalAccessException|InvocationTargetException ignored){}
+//                        If the client passes a filter that doesn't apply, ignore it (return true for this Predicate)
+                        return true;
+                    });
+                }
+            } catch (IntrospectionException ie) {
+//                If they pass a property that doesn't exist, just ignore it.
+            }
+        });
+
+        return getRandomNight(predicates);
     }
 
     public Optional<Night> getRandomNight() throws DataException {
